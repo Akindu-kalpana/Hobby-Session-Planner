@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import config from '../config/config';
+import LocationMap from '../components/LocationMap';
 
 function SessionDetails() {
   const { id } = useParams();
@@ -117,6 +118,17 @@ function SessionDetails() {
         <p><strong>Max Participants:</strong> {session.max_participants}</p>
         <p><strong>Current Attendees:</strong> {attendees.length}</p>
         <p><strong>Type:</strong> {session.session_type}</p>
+        
+        {/* Map */}
+        {session.location && (
+          <div style={{ marginTop: '1.5rem' }}>
+            <h3 style={{ marginBottom: '0.5rem', color: config.colors.dark }}>Location Map</h3>
+            <p style={{ fontSize: '0.9rem', color: config.colors.text, marginBottom: '0.5rem' }}>
+              Tip: Enter location as "latitude,longitude" for accurate mapping (e.g., "65.0121,25.4651")
+            </p>
+            <LocationMap location={session.location} title={session.title} />
+          </div>
+        )}
       </div>
 
       <div style={cardStyle}>
