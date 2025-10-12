@@ -4,6 +4,7 @@ import AllSessions from './pages/AllSessions';
 import CreateSession from './pages/CreateSession';
 import SessionDetails from './pages/SessionDetails';
 import ManageSession from './pages/ManageSession';
+import LeaveSession from './pages/LeaveSession';
 import './App.css';
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
             <Route path="/create" element={<CreateSession />} />
             <Route path="/session/:id" element={<SessionDetails />} />
             <Route path="/manage" element={<ManageSession />} />
+            <Route path="/leave" element={<LeaveSession />} />
           </Routes>
         </div>
       </div>

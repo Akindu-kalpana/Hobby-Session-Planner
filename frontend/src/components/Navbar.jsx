@@ -41,6 +41,7 @@ function Navbar() {
         <Link to="/" style={linkStyle}>All Sessions</Link>
         <Link to="/create" style={linkStyle}>Create Session</Link>
         <Link to="/manage" style={linkStyle}>Manage Session</Link>
+        <Link to="/leave" style={linkStyle}>Leave Session</Link>
       </div>
     </nav>
   );
