@@ -16,7 +16,10 @@ app.get('/', (req, res) => {
 
 // import session routes
 const sessionRoutes = require('./routes/sessions');
+const attendanceRoutes = require('./routes/attendance');
+
 app.use('/api/sessions', sessionRoutes);
+app.use('/api/attendance', attendanceRoutes);
 
 // start server
 app.listen(PORT, () => {
