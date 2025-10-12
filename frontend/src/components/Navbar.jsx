@@ -39,8 +39,9 @@ function Navbar() {
       </Link>
       <div style={linksStyle}>
         <Link to="/" style={linkStyle}>All Sessions</Link>
-        <Link to="/create" style={linkStyle}>Create Session</Link>
-        <Link to="/private" style={linkStyle}>Private Session</Link>
+        <Link to="/create" style={linkStyle}>Create</Link>
+        <Link to="/ai-suggest" style={linkStyle}>🤖 AI Suggest</Link>
+        <Link to="/private" style={linkStyle}>Private</Link>
         <Link to="/manage" style={linkStyle}>Manage</Link>
         <Link to="/leave" style={linkStyle}>Leave</Link>
       </div>

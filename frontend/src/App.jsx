@@ -6,6 +6,7 @@ import SessionDetails from './pages/SessionDetails';
 import ManageSession from './pages/ManageSession';
 import LeaveSession from './pages/LeaveSession';
 import PrivateSession from './pages/PrivateSession';
+import AISuggest from './pages/AISuggest';
 import './App.css';
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
             <Route path="/manage" element={<ManageSession />} />
             <Route path="/leave" element={<LeaveSession />} />
             <Route path="/private" element={<PrivateSession />} />
+            <Route path="/ai-suggest" element={<AISuggest />} />
           </Routes>
         </div>
       </div>
