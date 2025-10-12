@@ -3,6 +3,7 @@ import Navbar from './components/Navbar';
 import AllSessions from './pages/AllSessions';
 import CreateSession from './pages/CreateSession';
 import SessionDetails from './pages/SessionDetails';
+import ManageSession from './pages/ManageSession';
 import './App.css';
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
             <Route path="/" element={<AllSessions />} />
             <Route path="/create" element={<CreateSession />} />
             <Route path="/session/:id" element={<SessionDetails />} />
+            <Route path="/manage" element={<ManageSession />} />
           </Routes>
         </div>
       </div>
