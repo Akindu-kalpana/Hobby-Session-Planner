@@ -3,15 +3,39 @@ const router = express.Router();
 const db = require('../database');
 const { v4: uuidv4 } = require('uuid');
 
-// get all public sessions
+// get all public sessions with filters
 router.get('/', (req, res) => {
-  const query = `SELECT * FROM sessions WHERE session_type = 'public' ORDER BY date, time`;
+  const { search, date, upcoming } = req.query;
   
-  db.all(query, [], (err, rows) => {
+  let query = `SELECT * FROM sessions WHERE session_type = 'public'`;
+  const params = [];
+  
+  // search by keyword in title or description
+  if (search) {
+    query += ` AND (title LIKE ? OR description LIKE ?)`;
+    params.push(`%${search}%`, `%${search}%`);
+  }
+  
+  // filter by specific date
+  if (date) {
+    query += ` AND date = ?`;
+    params.push(date);
+  }
+  
+  // filter upcoming or past sessions
+  if (upcoming === 'true') {
+    query += ` AND date >= date('now')`;
+  } else if (upcoming === 'false') {
+    query += ` AND date < date('now')`;
+  }
+  
+  query += ` ORDER BY date, time`;
+  
+  db.all(query, params, (err, rows) => {
     if (err) {
       return res.status(500).json({ error: err.message });
     }
-    res.json({ sessions: rows });
+    res.json({ sessions: rows, count: rows.length });
   });
 });
 
