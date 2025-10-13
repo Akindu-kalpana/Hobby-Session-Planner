@@ -11,6 +11,9 @@ function SessionDetails() {
   const [loading, setLoading] = useState(true);
   const [participantName, setParticipantName] = useState('');
   const [attendanceCode, setAttendanceCode] = useState(null);
+  const [showRemoveModal, setShowRemoveModal] = useState(false);
+  const [selectedAttendeeId, setSelectedAttendeeId] = useState(null);
+  const [managementCode, setManagementCode] = useState('');
 
   useEffect(() => {
     fetchSessionDetails();
@@ -58,6 +61,38 @@ function SessionDetails() {
     }
   };
 
+  const handleRemoveClick = (attendeeId) => {
+    setSelectedAttendeeId(attendeeId);
+    setShowRemoveModal(true);
+  };
+
+  const handleRemoveAttendee = async () => {
+    if (!managementCode.trim()) {
+      alert('Please enter the management code');
+      return;
+    }
+
+    try {
+      await axios.delete(`${config.API_URL}/attendance/remove/${selectedAttendeeId}`, {
+        data: { management_code: managementCode }
+      });
+      alert('Attendee removed successfully!');
+      setShowRemoveModal(false);
+      setManagementCode('');
+      setSelectedAttendeeId(null);
+      fetchAttendees();
+    } catch (error) {
+      console.error('Error removing attendee:', error);
+      alert(error.response?.data?.error || 'Failed to remove attendee. Check your management code.');
+    }
+  };
+
+  const handleCancelRemove = () => {
+    setShowRemoveModal(false);
+    setManagementCode('');
+    setSelectedAttendeeId(null);
+  };
+
   const pageStyle = {
     padding: '2rem',
     maxWidth: '800px',
@@ -95,6 +130,38 @@ function SessionDetails() {
     borderRadius: '5px',
     cursor: 'pointer',
     fontSize: '1rem'
+  };
+
+  const removeButtonStyle = {
+    backgroundColor: config.colors.danger,
+    color: config.colors.white,
+    padding: '0.3rem 0.8rem',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer',
+    fontSize: '0.85rem',
+    marginLeft: '1rem'
+  };
+
+  const modalOverlayStyle = {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000
+  };
+
+  const modalStyle = {
+    backgroundColor: config.colors.white,
+    padding: '2rem',
+    borderRadius: '8px',
+    maxWidth: '400px',
+    width: '90%'
   };
 
   if (loading) {
@@ -170,14 +237,58 @@ function SessionDetails() {
             {attendees.map(attendee => (
               <li key={attendee.id} style={{
                 padding: '0.5rem 0',
-                borderBottom: `1px solid ${config.colors.light}`
+                borderBottom: `1px solid ${config.colors.light}`,
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
               }}>
-                {attendee.participant_name}
+                <span>{attendee.participant_name}</span>
+                <button
+                  style={removeButtonStyle}
+                  onClick={() => handleRemoveClick(attendee.id)}
+                >
+                  Remove
+                </button>
               </li>
             ))}
           </ul>
         )}
       </div>
+
+      {/* Remove Attendee Modal */}
+      {showRemoveModal && (
+        <div style={modalOverlayStyle} onClick={handleCancelRemove}>
+          <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
+            <h3 style={{ color: config.colors.dark, marginBottom: '1rem' }}>
+              Remove Attendee
+            </h3>
+            <p style={{ marginBottom: '1rem', color: config.colors.text }}>
+              Enter your management code to remove this attendee:
+            </p>
+            <input
+              style={inputStyle}
+              type="text"
+              placeholder="Management code"
+              value={managementCode}
+              onChange={(e) => setManagementCode(e.target.value)}
+            />
+            <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+              <button
+                style={{...buttonStyle, flex: 1}}
+                onClick={handleCancelRemove}
+              >
+                Cancel
+              </button>
+              <button
+                style={{...removeButtonStyle, flex: 1, marginLeft: 0}}
+                onClick={handleRemoveAttendee}
+              >
+                Remove
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
