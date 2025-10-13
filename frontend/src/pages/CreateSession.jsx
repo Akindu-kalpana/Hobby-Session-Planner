@@ -175,6 +175,11 @@ function CreateSession() {
           <p style={{fontSize: '0.9rem', color: config.colors.text}}>
             You need these codes to edit or delete your session later!
           </p>
+          {codes.email_sent && (
+            <p style={{fontSize: '0.9rem', color: config.colors.secondary, marginTop: '1rem'}}>
+              ✅ Codes have also been sent to your email!
+            </p>
+          )}
         </div>
       )}
     </div>

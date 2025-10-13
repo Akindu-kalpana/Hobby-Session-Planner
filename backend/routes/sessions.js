@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../database');
 const { v4: uuidv4 } = require('uuid');
+const { sendSessionCreatedEmail } = require('../services/emailService');
 
 // get all public sessions with filters
 router.get('/', (req, res) => {
@@ -56,34 +57,6 @@ router.get('/:id', (req, res) => {
   });
 });
 
-// create new session
-router.post('/', (req, res) => {
-  const { title, description, date, time, max_participants, session_type, location, creator_email } = req.body;
-  
-  // generate codes
-  const management_code = uuidv4().substring(0, 8);
-  const private_code = session_type === 'private' ? uuidv4().substring(0, 8) : null;
-  
-  const query = `
-    INSERT INTO sessions (title, description, date, time, max_participants, session_type, location, management_code, private_code, creator_email)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `;
-  
-  db.run(query, [title, description, date, time, max_participants, session_type, location, management_code, private_code, creator_email], function(err) {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
-    
-    // return the created session with codes
-    res.status(201).json({
-      message: 'Session created successfully',
-      session_id: this.lastID,
-      management_code: management_code,
-      private_code: private_code
-    });
-  });
-});
-
 // get private session by private code
 router.get('/private/:code', (req, res) => {
   const { code } = req.params;
@@ -98,6 +71,54 @@ router.get('/private/:code', (req, res) => {
       return res.status(404).json({ error: 'Private session not found' });
     }
     res.json({ session: row });
+  });
+});
+
+// create new session
+router.post('/', async (req, res) => {
+  const { title, description, date, time, max_participants, session_type, location, creator_email } = req.body;
+  
+  console.log('📝 Creating session...'); // DEBUG
+  console.log('📧 Creator email:', creator_email); // DEBUG
+  
+  // generate codes
+  const management_code = uuidv4().substring(0, 8);
+  const private_code = session_type === 'private' ? uuidv4().substring(0, 8) : null;
+  
+  const query = `
+    INSERT INTO sessions (title, description, date, time, max_participants, session_type, location, management_code, private_code, creator_email)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `;
+  
+  db.run(query, [title, description, date, time, max_participants, session_type, location, management_code, private_code, creator_email], async function(err) {
+    if (err) {
+      console.error('❌ Database error:', err); // DEBUG
+      return res.status(500).json({ error: err.message });
+    }
+    
+    console.log('✅ Session saved to database'); // DEBUG
+    
+    // send email if email provided
+    if (creator_email && creator_email.trim()) {
+      console.log('📤 Attempting to send email...'); // DEBUG
+      try {
+        await sendSessionCreatedEmail(creator_email, title, management_code, private_code);
+        console.log(`✅ Email sent to ${creator_email}`);
+      } catch (error) {
+        console.error('❌ Failed to send email:', error);
+      }
+    } else {
+      console.log('⚠️ No email provided, skipping email'); // DEBUG
+    }
+    
+    // return the created session with codes
+    res.status(201).json({
+      message: 'Session created successfully',
+      session_id: this.lastID,
+      management_code: management_code,
+      private_code: private_code,
+      email_sent: creator_email ? true : false
+    });
   });
 });
 
