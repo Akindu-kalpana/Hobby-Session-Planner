@@ -18,6 +18,7 @@ function CreateSession() {
   });
 
   const [codes, setCodes] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
   // handle input changes
   const handleChange = (e) => {
@@ -34,11 +35,17 @@ function CreateSession() {
     try {
       const response = await axios.post(`${config.API_URL}/sessions`, formData);
       setCodes(response.data);
-      alert('Session created successfully!');
+      setShowModal(true);
     } catch (error) {
       console.error('Error creating session:', error);
       alert('Failed to create session');
     }
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setCodes(null);
+    navigate('/');
   };
 
   const pageStyle = {
@@ -74,11 +81,38 @@ function CreateSession() {
     width: '100%'
   };
 
-  const codeBoxStyle = {
-    marginTop: '2rem',
-    padding: '1rem',
-    backgroundColor: config.colors.light,
-    borderRadius: '5px'
+  const modalOverlayStyle = {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000
+  };
+
+  const modalContentStyle = {
+    backgroundColor: config.colors.white,
+    padding: '2.5rem',
+    borderRadius: '12px',
+    maxWidth: '500px',
+    width: '90%',
+    boxShadow: '0 8px 16px rgba(0,0,0,0.2)'
+  };
+
+  const okButtonStyle = {
+    backgroundColor: config.colors.primary,
+    color: config.colors.white,
+    padding: '0.75rem 2rem',
+    border: 'none',
+    borderRadius: '5px',
+    fontSize: '1rem',
+    cursor: 'pointer',
+    width: '100%',
+    marginTop: '1.5rem'
   };
 
   return (
@@ -165,21 +199,76 @@ function CreateSession() {
         </button>
       </form>
 
-      {codes && (
-        <div style={codeBoxStyle}>
-          <h3>Important! Save these codes:</h3>
-          <p><strong>Management Code:</strong> {codes.management_code}</p>
-          {codes.private_code && (
-            <p><strong>Private Code:</strong> {codes.private_code}</p>
-          )}
-          <p style={{fontSize: '0.9rem', color: config.colors.text}}>
-            You need these codes to edit or delete your session later!
-          </p>
-          {codes.email_sent && (
-            <p style={{fontSize: '0.9rem', color: config.colors.secondary, marginTop: '1rem'}}>
-              ✅ Codes have also been sent to your email!
-            </p>
-          )}
+      {/* Success Modal */}
+      {showModal && codes && (
+        <div style={modalOverlayStyle}>
+          <div style={modalContentStyle}>
+            <h2 style={{ color: config.colors.primary, marginBottom: '1rem' }}>
+              🎉 Session Created Successfully!
+            </h2>
+            
+            <div style={{
+              backgroundColor: config.colors.light,
+              padding: '1.5rem',
+              borderRadius: '8px',
+              marginBottom: '1rem'
+            }}>
+              <h3 style={{ color: config.colors.dark, marginBottom: '1rem' }}>
+                ⚠️ Important! Save These Codes:
+              </h3>
+              
+              <div style={{ marginBottom: '1rem' }}>
+                <strong>Management Code:</strong>
+                <p style={{
+                  backgroundColor: config.colors.white,
+                  padding: '0.75rem',
+                  borderRadius: '5px',
+                  fontFamily: 'monospace',
+                  fontSize: '1.1rem',
+                  marginTop: '0.5rem',
+                  border: `2px solid ${config.colors.primary}`
+                }}>
+                  {codes.management_code}
+                </p>
+              </div>
+
+              {codes.private_code && (
+                <div style={{ marginBottom: '1rem' }}>
+                  <strong>Private Session Code:</strong>
+                  <p style={{
+                    backgroundColor: config.colors.white,
+                    padding: '0.75rem',
+                    borderRadius: '5px',
+                    fontFamily: 'monospace',
+                    fontSize: '1.1rem',
+                    marginTop: '0.5rem',
+                    border: `2px solid ${config.colors.warning}`
+                  }}>
+                    {codes.private_code}
+                  </p>
+                </div>
+              )}
+
+              <p style={{ fontSize: '0.9rem', color: config.colors.text, marginTop: '1rem' }}>
+                💡 You need the management code to edit or delete your session later!
+              </p>
+
+              {codes.email_sent && (
+                <p style={{
+                  fontSize: '0.9rem',
+                  color: config.colors.secondary,
+                  marginTop: '1rem',
+                  fontWeight: 'bold'
+                }}>
+                  ✅ Codes have also been sent to your email!
+                </p>
+              )}
+            </div>
+
+            <button style={okButtonStyle} onClick={handleCloseModal}>
+              OK, Got It!
+            </button>
+          </div>
         </div>
       )}
     </div>
