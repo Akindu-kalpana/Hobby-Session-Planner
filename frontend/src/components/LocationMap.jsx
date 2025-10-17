@@ -2,7 +2,7 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import { Icon } from 'leaflet';
 import config from '../config/config';
 
-// fix for default marker icon
+
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 
@@ -14,20 +14,18 @@ let DefaultIcon = new Icon({
 });
 
 function LocationMap({ location, title }) {
-  // simple geocoding - in real app you'd use a geocoding API
-  // for now, we'll use fixed coordinates for demonstration
-  // users can enter "lat,lng" format or just text
+  
   
   const getCoordinates = (loc) => {
     if (!loc) return [65.0121, 25.4651]; // default: Oulu, Finland
     
-    // check if location is in "lat,lng" format
+   
     const coords = loc.split(',').map(c => parseFloat(c.trim()));
     if (coords.length === 2 && !isNaN(coords[0]) && !isNaN(coords[1])) {
       return coords;
     }
     
-    // default coordinates for text locations
+    
     return [65.0121, 25.4651]; // Oulu, Finland
   };
 
